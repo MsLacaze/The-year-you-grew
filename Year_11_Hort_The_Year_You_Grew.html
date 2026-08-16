@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hort: The Year You Grew</title>
+<style>
+:root{
+  --green:#183c2b; --leaf:#2f7d4a; --lime:#a8d36f; --cream:#fff8e8;
+  --orange:#e88942; --ink:#18231d; --muted:#66736b; --white:#fff;
+}
+*{box-sizing:border-box}
+body{
+ margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;
+ color:var(--ink);background:linear-gradient(135deg,#eaf4df 0%,#fff8e8 55%,#e7f1e9 100%);
+}
+header{
+ background:linear-gradient(135deg,var(--green),#2d6845);color:white;padding:34px 22px;
+ text-align:center;position:sticky;top:0;z-index:10;box-shadow:0 4px 18px #0002
+}
+header h1{font-size:clamp(2rem,5vw,4rem);margin:0 0 8px;letter-spacing:-2px}
+header p{margin:0;opacity:.9;font-size:1.05rem}
+.progress{height:8px;background:#ffffff30;margin:20px auto 0;max-width:900px;border-radius:20px;overflow:hidden}
+#bar{height:100%;width:0;background:var(--lime);transition:.3s}
+.wrap{max-width:1000px;margin:auto;padding:28px 18px 70px}
+.card{
+ background:#fff; border:1px solid #dce8dc;border-radius:24px;padding:26px;margin:20px 0;
+ box-shadow:0 10px 30px #274d3010
+}
+.card h2{margin-top:0;color:var(--green);font-size:1.7rem}
+.kicker{font-weight:800;color:var(--orange);text-transform:uppercase;letter-spacing:1.5px;font-size:.8rem}
+.time{float:right;background:#eef7e8;color:var(--leaf);padding:6px 11px;border-radius:20px;font-weight:800}
+.instructions{background:#f7fbf4;border-left:5px solid var(--lime);padding:14px 16px;border-radius:10px;margin:14px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+label{font-weight:700;display:block;margin:10px 0 6px}
+input[type=text],textarea,select{
+ width:100%;padding:12px;border:2px solid #d8e3d9;border-radius:12px;font:inherit;background:#fff;
+}
+textarea{min-height:110px;resize:vertical}
+button{
+ border:0;border-radius:12px;padding:12px 17px;font:inherit;font-weight:800;cursor:pointer;
+ background:var(--green);color:white;margin:5px 5px 5px 0
+}
+button.secondary{background:#e9f2e7;color:var(--green)}
+button.orange{background:var(--orange)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.choice{
+ border:2px solid #dbe7db;border-radius:16px;padding:15px;margin:8px 0;cursor:pointer;
+ transition:.15s;background:white
+}
+.choice:hover{transform:translateY(-2px);border-color:var(--leaf)}
+.choice.selected{border-color:var(--leaf);background:#eef8e9}
+.choice.correct{border-color:#328b4d;background:#e9f7ed}
+.choice.wrong{border-color:#cf5d4c;background:#fff0ed}
+.badge{display:inline-block;padding:6px 10px;border-radius:20px;background:#f4eadb;margin:4px;font-weight:700}
+.bigscore{text-align:center;font-size:4rem;font-weight:900;color:var(--green);margin:5px}
+.hidden{display:none!important}
+.reflection-meter{height:18px;background:#e9eee8;border-radius:20px;overflow:hidden;margin:10px 0}
+#meter{height:100%;width:0;background:var(--leaf);transition:.4s}
+.slider-row{display:grid;grid-template-columns:1fr 80px;gap:15px;align-items:center}
+input[type=range]{width:100%}
+footer{text-align:center;color:var(--muted);padding:30px}
+.quote{
+ font-size:1.25rem;font-weight:700;color:var(--green);background:#f4f8ed;padding:20px;border-radius:18px;text-align:center
+}
+@media print{
+ header{position:static}.card{break-inside:avoid;box-shadow:none}
+ button{display:none}body{background:white}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>🌱 HORT: THE YEAR YOU GREW</h1>
+  <p>A 50-minute interactive reflection for Year 11 Horticulture</p>
+  <div class="progress"><div id="bar"></div></div>
+</header>
+
+<div class="wrap">
+
+<section class="card" id="start">
+ <span class="kicker">Mission briefing</span><span class="time">2 min</span>
+ <h2>You've made it through a year of Horticulture.</h2>
+ <p>This is not a boring "write about your year" worksheet. You are going to look back at what you <strong>actually learned, did, struggled with and improved</strong> — then decide what kind of grower you are becoming.</p>
+ <div class="instructions"><strong>Relief instructions:</strong> Work independently. Type your answers into the activity. Be honest — this is about your learning, not giving the "right" answer. Complete every section.</div>
+ <div class="grid">
+   <div><label>Your name</label><input id="name" type="text" placeholder="Type your name"></div>
+   <div><label>How are you feeling about the year?</label>
+   <select id="mood"><option value="">Choose one...</option><option>🌱 Still growing</option><option>🌿 Pretty solid</option><option>🌻 Proud of myself</option><option>🥴 It was a journey</option><option>🏆 I absolutely smashed it</option></select>
+ </div>
+ </div>
+ <button onclick="next('recall')">Start the mission →</button>
+</section>
+
+<section class="card" id="recall">
+ <span class="kicker">Level 1 — Memory garden</span><span class="time">8 min</span>
+ <h2>🧠 What actually stuck?</h2>
+ <p>First, test your memory. Choose the best answer. You get immediate feedback.</p>
+ <div id="quiz"></div>
+ <div id="quizResult" class="instructions hidden"></div>
+ <button id="quizNext" onclick="next('year')" disabled>Continue →</button>
+</section>
+
+<section class="card" id="year">
+ <span class="kicker">Level 2 — Your growing season</span><span class="time">10 min</span>
+ <h2>📸 Reconstruct your year</h2>
+ <p>Think back to the practical work, theory, garden jobs, assessments, discussions and moments that stand out.</p>
+ <label>🌱 A practical or activity I remember clearly</label>
+ <textarea id="practical" placeholder="What did you do? What happened? What did you learn?"></textarea>
+ <label>🧪 A horticultural concept I understand better now</label>
+ <textarea id="concept" placeholder="Examples: soil, compost, biodiversity, plant propagation, pests, maramataka, seed biology, sustainability..."></textarea>
+ <label>😅 Something that did NOT go to plan</label>
+ <textarea id="fail" placeholder="A crop that failed? A practical disaster? An assessment struggle? What happened?"></textarea>
+ <label>💡 What did that failure teach you?</label>
+ <textarea id="lesson" placeholder="This is the important bit..."></textarea>
+ <button onclick="next('skills')">My growing season →</button>
+</section>
+
+<section class="card" id="skills">
+ <span class="kicker">Level 3 — Skills audit</span><span class="time">8 min</span>
+ <h2>🛠️ What can you do now that you couldn't do before?</h2>
+ <p>Rate yourself honestly. There is no prize for pretending you are an expert.</p>
+ <div id="sliders"></div>
+ <div class="reflection-meter"><div id="meter"></div></div>
+ <p id="meterText"><strong>Skill profile:</strong> Start rating your skills.</p>
+ <label>Which skill improved the MOST for you — and why?</label>
+ <textarea id="bestskill" placeholder="Explain what changed."></textarea>
+ <button onclick="next('judgement')">Skill audit complete →</button>
+</section>
+
+<section class="card" id="judgement">
+ <span class="kicker">Level 4 — Horticultural judgement</span><span class="time">8 min</span>
+ <h2>🌿 You're the grower now.</h2>
+ <p>These are real-world decisions. There isn't always one perfect answer. Choose the option you think is <strong>most defensible</strong>, then explain your reasoning.</p>
+ <div class="choice" data-q="1" onclick="decision(this,1)"><strong>Scenario 1:</strong> Your vegetable plants are growing poorly. The first thing you should investigate is...<br><br> A. Immediately add lots of fertiliser<br> B. Soil, moisture, light and plant condition<br> C. Blame the seeds<br> D. Water them constantly</div>
+ <div class="choice" data-q="2" onclick="decision(this,2)"><strong>Scenario 2:</strong> You notice many different insects in a healthy garden. Your best interpretation is...<br><br> A. All insects are pests<br> B. Biodiversity can support a more resilient ecosystem<br> C. Spray everything<br> D. Remove the insects before they reproduce</div>
+ <div class="choice" data-q="3" onclick="decision(this,3)"><strong>Scenario 3:</strong> A crop fails. A good horticultural response is to...<br><br> A. Give up<br> B. Analyse the evidence, identify likely causes and adjust the next attempt<br> C. Repeat exactly the same process<br> D. Decide you are bad at growing</div>
+ <div id="decisionExplain" class="instructions hidden"></div>
+ <label>🌳 Explain one of your choices. What evidence or horticultural principle supports it?</label>
+ <textarea id="judgereason" placeholder="Use horticultural language where you can."></textarea>
+ <button onclick="next('legacy')">Make the call →</button>
+</section>
+
+<section class="card" id="legacy">
+ <span class="kicker">Level 5 — The grower's legacy</span><span class="time">9 min</span>
+ <h2>🌻 What are you taking with you?</h2>
+ <p>Imagine someone new joins Horticulture next year and asks you: <em>"Is this subject worth doing?"</em></p>
+ <label>What would you tell them?</label>
+ <textarea id="advice" placeholder="Be honest. What is actually valuable about Horticulture?"></textarea>
+ <label>One thing I am proud of this year</label>
+ <textarea id="proud" placeholder="It can be academic, practical, personal, teamwork-related — anything real."></textarea>
+ <label>One thing I would do differently</label>
+ <textarea id="different" placeholder="What would you change if you could rewind the year?"></textarea>
+ <label>One horticultural goal for the future</label>
+ <textarea id="goal" placeholder="Something you want to learn, grow, build, improve or understand."></textarea>
+ <button class="orange" onclick="finish()">🌱 Grow my final reflection</button>
+</section>
+
+<section class="card hidden" id="finish">
+ <span class="kicker">Mission complete</span>
+ <h2>🏆 Your Year in Horticulture</h2>
+ <div class="bigscore" id="finalScore">—</div>
+ <p style="text-align:center"><strong id="finalName">Grower</strong>, your year was not just about plants.</p>
+ <div class="quote" id="finalQuote">Every grower learns by observing, trying, failing, adapting and trying again.</div>
+ <div id="summary" class="instructions"></div>
+ <p><strong>Final challenge:</strong> Take one minute to read your answers back. Is there evidence that you have grown this year — not just as a horticulture student, but as a problem-solver?</p>
+ <button onclick="window.print()">🖨️ Print / Save my reflection</button>
+ <button class="secondary" onclick="downloadData()">💾 Save my reflection as a text file</button>
+</section>
+
+</div>
+<footer>🌿 Year 11 Horticulture • Reflect • Learn • Grow</footer>
+
+<script>
+const sections=['start','recall','year','skills','judgement','legacy','finish'];
+function next(id){
+ sections.forEach(s=>document.getElementById(s).classList.add('hidden'));
+ document.getElementById(id).classList.remove('hidden');
+ window.scrollTo({top:0,behavior:'smooth'});
+ const idx=sections.indexOf(id);
+ document.getElementById('bar').style.width=(idx/(sections.length-1)*100)+'%';
+}
+const questions=[
+ {q:"Which factor is most important when choosing a place to grow a crop?",a:["How close it is to the classroom","Light, soil, water and environmental conditions","Whether it looks pretty","Whether insects can reach it"],c:1},
+ {q:"What is one major benefit of compost?",a:["It makes all plants grow instantly","It can improve soil structure and return organic matter","It kills every organism in soil","It replaces sunlight"],c:1},
+ {q:"Why is biodiversity useful in a garden?",a:["It guarantees no pests","It creates more complex interactions and can improve ecosystem resilience","It means every plant grows faster","It removes the need to observe plants"],c:1},
+ {q:"A good horticultural investigation should be based on...",a:["Guessing","Evidence and observations","Who has the strongest opinion","Doing whatever worked last time"],c:1},
+ {q:"When a crop fails, the most useful response is to...",a:["Ignore it","Look for causes and use the information to improve the next attempt","Blame the weather","Never grow that crop again"],c:1}
+];
+let qIndex=0,qScore=0;
+function renderQuiz(){
+ const x=questions[qIndex];
+ document.getElementById('quiz').innerHTML='<h3>Question '+(qIndex+1)+' of '+questions.length+'</h3><p><strong>'+x.q+'</strong></p>'+x.a.map((v,i)=>`<div class="choice" onclick="answer(this,${i})">${v}</div>`).join('');
+}
+function answer(el,i){
+ const x=questions[qIndex];
+ document.querySelectorAll('#quiz .choice').forEach(e=>e.onclick=null);
+ if(i===x.c){el.classList.add('correct');qScore++;}else{el.classList.add('wrong');document.querySelectorAll('#quiz .choice')[x.c].classList.add('correct')}
+ setTimeout(()=>{
+  qIndex++;
+  if(qIndex<questions.length) renderQuiz();
+  else{
+   document.getElementById('quiz').innerHTML='';
+   document.getElementById('quizResult').classList.remove('hidden');
+   document.getElementById('quizResult').innerHTML='<strong>Memory garden score: '+qScore+'/'+questions.length+'</strong><br>'+(
+    qScore>=4?'Nice. Your horticultural brain is still alive and photosynthesising. 🌿':
+    'That is exactly why reflection matters — now you know what needs revisiting. 🌱');
+   document.getElementById('quizNext').disabled=false;
+  }
+ },650);
+}
+renderQuiz();
+
+const skills=["Plant identification","Using horticultural tools safely","Growing/propagating plants","Understanding soil & compost","Recognising pests/disease","Working independently","Recording observations","Explaining horticultural decisions"];
+document.getElementById('sliders').innerHTML=skills.map((s,i)=>`
+<div class="slider-row"><label>${s}</label><input type="range" min="1" max="5" value="3" oninput="updateMeter()"></div>`).join('');
+function updateMeter(){
+ const vals=[...document.querySelectorAll('#sliders input')].map(x=>+x.value);
+ const avg=vals.reduce((a,b)=>a+b,0)/vals.length;
+ document.getElementById('meter').style.width=(avg/5*100)+'%';
+ document.getElementById('meterText').innerHTML='<strong>Skill profile:</strong> '+avg.toFixed(1)+' / 5 — '+(avg>=4?'You have built a strong toolkit.':'There is still room to grow — which is completely normal.');
+}
+updateMeter();
+
+let decisions={};
+function decision(el,n){
+ const parent=el.parentElement;
+ parent.querySelectorAll('.choice[data-q="'+n+'"]').forEach(x=>x.classList.remove('selected'));
+ el.classList.add('selected');decisions[n]=el;
+ document.getElementById('decisionExplain').classList.remove('hidden');
+ document.getElementById('decisionExplain').innerHTML = n===1 ?
+ '<strong>Horticultural thinking:</strong> Diagnose before treating. Soil, moisture, light, pests, disease and plant condition are evidence you can investigate.' :
+ n===2 ?
+ '<strong>Horticultural thinking:</strong> A garden is an ecosystem. Not every insect is a pest, and diversity can support beneficial interactions.' :
+ '<strong>Horticultural thinking:</strong> Failure is data. Good growers observe, analyse, adapt and test again.';
+}
+function val(id){return (document.getElementById(id)?.value||'').trim()}
+function finish(){
+ const required=['practical','concept','fail','lesson','bestskill','judgereason','advice','proud','different','goal'];
+ const done=required.filter(id=>val(id).length>8).length;
+ const bonus=Object.keys(decisions).length;
+ const score=Math.min(100,Math.round((done/required.length)*80+bonus*5+qScore*2));
+ document.getElementById('finalScore').textContent=score+'%';
+ document.getElementById('finalName').textContent=val('name')||'Grower';
+ const quotes=[
+  "You don't become a grower by never failing. You become one by learning what the failure is telling you.",
+  "Good growers don't just grow plants. They notice, question, adapt and improve.",
+  "The best evidence of learning is not what you remember — it is what you can now do differently."
+ ];
+ document.getElementById('finalQuote').textContent=quotes[score%quotes.length];
+ document.getElementById('summary').innerHTML='<strong>Your reflection snapshot:</strong><br>🌱 Practical memory: '+(val('practical')||'Not completed')+
+ '<br>🧠 Biggest learning: '+(val('concept')||'Not completed')+
+ '<br>🏆 Proud moment: '+(val('proud')||'Not completed')+
+ '<br>🎯 Future goal: '+(val('goal')||'Not completed');
+ next('finish');
+}
+function downloadData(){
+ let text='YEAR 11 HORTICULTURE — THE YEAR YOU GREW\\n\\n';
+ [['Name','name'],['Mood','mood'],['Practical','practical'],['Concept','concept'],['Failure','fail'],['Lesson from failure','lesson'],['Best skill','bestskill'],['Judgement reasoning','judgereason'],['Advice to next year','advice'],['Proud of','proud'],['Would do differently','different'],['Future goal','goal']].forEach(([a,b])=>text+=a+':\\n'+val(b)+'\\n\\n');
+ const blob=new Blob([text],{type:'text/plain'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Year_11_Hort_Reflection.txt';a.click();
+}
+</script>
+</body>
+</html>
